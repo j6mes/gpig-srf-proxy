@@ -1,0 +1,79 @@
+group 'co.j6mes.infra.srf'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+    maven {
+        url 'http://10.211.55.10/repository/'
+    }
+}
+
+dependencies {
+    compile 'co.j6mes.infra.srf:service-registration-framework:1.0.0.7'
+}
+
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Service Registration Framework Proxy',
+                'Implementation-Version': version,
+                'Built-By': System.getProperty('user.name'),
+                'Built-Date': new Date(),
+                'Built-JDK': System.getProperty('java.version'),
+                'Built-Gradle': gradle.gradleVersion,
+                'Main-Class': 'co.j6mes.infra.srf.proxy.SRFProxy'
+    }
+}
+
+
+task sourcesJar(type: Jar) {
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('name', 'Service Registration Framework')
+                root.appendNode('description', 'A subset of SLP for service registration')
+                root.appendNode('url', 'https://github.com/j6mes/gpig-srf-proxy')
+                root.appendNode('inceptionYear', '2016')
+
+                def scm = root.appendNode('scm')
+                scm.appendNode('url', 'https://github.com/j6mes/gpig-srf-proxy')
+                scm.appendNode('connection', 'scm:https://j6mes@github.com/j6mes/gpig-srf-proxy.git')
+                scm.appendNode('developerConnection', 'scm:git://github.com/j6mes/gpig-srf-proxy.git')
+
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+
+                def developers = root.appendNode('developers')
+                def j6mes = developers.appendNode('developer')
+                j6mes.appendNode('id', 'j6mes')
+                j6mes.appendNode('name', 'James Thorne')
+                j6mes.appendNode('email', 'james@jthorne.co.uk')
+            }
+        }
+    }
+}
+
