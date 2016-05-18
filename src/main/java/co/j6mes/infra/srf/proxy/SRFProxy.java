@@ -20,7 +20,11 @@ public class SRFProxy {
         sr.up();
 
         while(true) {
-            System.in.read();
+            try {
+                Thread.sleep(10000000);
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }
